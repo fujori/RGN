@@ -11,8 +11,13 @@ config_version=5
 [application]
 
 config/name="RGN"
+run/main_scene="uid://dk45dukp55sh2"
 config/features=PackedStringArray("4.5", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+GlobalUtils="*res://scripts/GlobalUtils.gd"
 
 [rendering]
 
