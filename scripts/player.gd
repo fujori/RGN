@@ -72,8 +72,8 @@ var jump_min_horizontal: float = 0.0
 var jump_max_horizontal: float = 1000.0
 
 ## Время накопления горизонтального импульса прыжка (сек)
-@export_custom(PROPERTY_HINT_RANGE, "0.05,1.0,0.01")
-var jump_start_hold_time: float = 0.25
+@export_custom(PROPERTY_HINT_RANGE, "0.05,3.0,0.01")
+var jump_start_hold_time: float = 0.64
 
 
 # -------------------------

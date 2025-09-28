@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://clefqhh08lm0c" path="res://scripts/player.gd" id="1_40gj3"]
 [ext_resource type="Texture2D" uid="uid://b7dcj3eeduaw5" path="res://assets/sprites/player_idle.png" id="2_jpq18"]
 [ext_resource type="Texture2D" uid="uid://ig0ao3yre6dq" path="res://assets/sprites/player_jump.png" id="3_mjmhq"]
-[ext_resource type="Texture2D" uid="uid://ihow82di0iuo" path="res://assets/sprites/Player_round.png" id="4_mjmhq"]
+[ext_resource type="Texture2D" uid="uid://ihow82di0iuo" path="res://assets/sprites/player_round.png" id="4_mjmhq"]
 [ext_resource type="Texture2D" uid="uid://bpsuujnrejsxt" path="res://assets/sprites/player_walk.png" id="5_jvevl"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_7cpqj"]
