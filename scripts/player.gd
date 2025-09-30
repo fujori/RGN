@@ -113,6 +113,15 @@ var jump_hold_timer: float = 0.0
 var jump_direction: int = 0
 var accumulated_impulse: float = 0.0
 
+
+
+
+func init_player(_name: String, _position: Vector2) -> void:
+	self.name = _name
+	global_position = _position
+
+
+
 func _ready():
 	# Отладка — распечатаем реальные значения, чтобы увидеть, что инспектор реально даёт
 	print("[Player] in _ready: max_speed=", max_speed, " acc=", acceleration, " friction_stop=", friction_stop)
@@ -147,9 +156,10 @@ func _read_input() -> void:
 	var left = Input.is_action_pressed("ui_left")
 	var right = Input.is_action_pressed("ui_right")
 
-	# в штатных состояниях — читаем направление
-	if current_state in [PlayerState.JUMP_START, PlayerState.JUMP, PlayerState.FLY, PlayerState.LAND]:
-		# во время этих состояний управление горизонталью блокировано (кроме специальных случаев в Jump_start logic)
+	# Блокируем горизонтальное управление во время активного набора прыжка, прыжка и полёта,
+	# но НЕ блокируем чтение направления на этапе приземления (LAND),
+	# чтобы можно было сразу перейти в WALK после окончания анимации Land.
+	if current_state in [PlayerState.JUMP_START, PlayerState.JUMP, PlayerState.FLY]:
 		input_direction = 0
 		return
 
@@ -158,6 +168,9 @@ func _read_input() -> void:
 		input_direction = -1
 	elif right and not left:
 		input_direction = 1
+
+
+
 
 # --- TIMERS ---
 func _update_timers(delta: float) -> void:
@@ -312,6 +325,8 @@ func _update_state() -> void:
 		PlayerState.LAND:
 			pass
 
+
+# --- STATE CHANGERS ---
 func _set_state(new_state: PlayerState) -> void:
 	if current_state == new_state:
 		return
@@ -329,6 +344,37 @@ func _set_state(new_state: PlayerState) -> void:
 			anim_sprite.play("Fly")
 		PlayerState.LAND:
 			anim_sprite.play("Land")
+#func _set_state(new_state: PlayerState) -> void:
+	#if current_state == new_state:
+		#return
+	#current_state = new_state
+#
+	## Если anim_sprite не найден, ничего не делаем
+	#if not anim_sprite:
+		#printerr("AnimatedSprite2D not found, setting default animation 'Idle'")
+		#return
+#
+	#var anim_name : String 
+	#match current_state:
+		#PlayerState.IDLE: anim_name = "Idle"
+		#PlayerState.WALK: anim_name = "Walk"
+		#PlayerState.JUMP_START: anim_name = "Jump_start"
+		#PlayerState.JUMP: anim_name = "Jump"
+		#PlayerState.FLY: anim_name = "Fly"
+		#PlayerState.LAND: anim_name = "Land"
+		#_: "Idle"
+#
+	#if anim_sprite.sprite_frames.has_animation(anim_name):
+		#anim_sprite.play(anim_name)
+	#elif anim_sprite.sprite_frames.has_animation("Idle"):
+		#anim_sprite.play("Idle")
+	#else:
+		#printerr("Neither animation '%s' nor 'Idle' found" % anim_name)
+
+
+
+
+
 
 func _enter_jump() -> void:
 	_set_state(PlayerState.JUMP)
@@ -338,15 +384,24 @@ func _enter_fly() -> void:
 	jump_pending = false
 	is_jump_released = true
 
+
+
+# --- ANIMATION FINISHED CALLBACK ---
 func _on_animation_finished() -> void:
 	match current_state:
 		PlayerState.JUMP_START:
 			if is_jump_released:
 				_enter_jump()
+			# иначе остаёмся в JUMP_START и ждём отпускания кнопки
+
 		PlayerState.JUMP:
 			_enter_fly()
+
 		PlayerState.LAND:
-			# после Land сразу в Walk если зажата кнопка, иначе в Idle
+			# Когда Land заканчивается — проверяем ввод и текущую скорость.
+			# Если игрок держит кнопку влево/вправо — сразу Walk.
+			# Иначе если есть остаточная скорость — тоже Walk.
+			# Иначе — Idle.
 			if input_direction != 0:
 				_set_state(PlayerState.WALK)
 			elif abs(impulse) > 0.1:
